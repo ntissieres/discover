@@ -1,5 +1,6 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { Server } from 'http';
+import { handleClientMessage, handleDisconnect } from './handlers/connection';
 
 // Store all connected clients
 const clients = new Set<WebSocket>();
@@ -29,12 +30,8 @@ export function initializeWebSocketServer(httpServer: Server) {
                 const message = JSON.parse(data.toString());
                 console.log('📨 Received message:', message);
 
-                // TODO: Route messages to appropriate handlers
-                // For now, just echo it back
-                ws.send(JSON.stringify({
-                    type: 'ECHO',
-                    data: message
-                }));
+                // Route to handler
+                handleClientMessage(ws, message);
 
             } catch (error) {
                 console.error('❌ Error parsing message:', error);
@@ -48,12 +45,14 @@ export function initializeWebSocketServer(httpServer: Server) {
         // Handle client disconnect
         ws.on('close', () => {
             console.log('👋 Client disconnected');
+            handleDisconnect(ws);
             clients.delete(ws);
         });
 
         // Handle errors
         ws.on('error', (error) => {
-            console.error('❌ WebSocket error:', error); 
+            console.error('❌ WebSocket error:', error);
+            handleDisconnect(ws);
             clients.delete(ws);          
         });
     });

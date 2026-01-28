@@ -3,6 +3,7 @@ import { Track } from "./track";
 
 export type ClientToServerMessage = 
     | { type: "JOIN_GAME"; playerName: string }
+    | { type: "START_GAME" }
     | { type: "SUBMIT_TRACK"; track: Track }
     | { type: "SELECT_TRACK"; trackId: string };
 

@@ -70,70 +70,82 @@ This document follows the recommended learning path to build the multiplayer mus
 
 ---
 
-## 2. Game State Management
+## 2. Game State Management ✅
 
 ### 2.1 Initialize Game State
-**Status:** Not Started  
+**Status:** ✅ Complete
 **Files:** `backend/src/game/gameState.ts`
 
 **Tasks:**
-- [ ] Import shared types (GameState, Player, Track)
-- [ ] Create singleton game state object
-- [ ] Initialize with default values (LOBBY phase, empty players array)
-- [ ] Create function to get current state
-- [ ] Create function to reset state
-- [ ] Add helper to find player by ID
+- [x] Import shared types (GameState, Player, Track)
+- [x] Create singleton game state object
+- [x] Initialize with default values (LOBBY phase, empty players array)
+- [x] Create function to get current state
+- [x] Create function to reset state
+- [x] Add helper to find player by ID
 
 **Acceptance Criteria:**
-- Game state matches `GameState` interface from shared types
-- Can access and modify state
-- State persists across function calls
+- ✅ Game state matches `GameState` interface from shared types
+- ✅ Can access and modify state
+- ✅ State persists across function calls
 
 **Learning Focus:** State management patterns, singleton pattern, type safety
 
 ---
 
 ### 2.2 Implement Lobby Logic
-**Status:** Not Started  
+**Status:** ✅ Complete
 **Files:** `backend/src/game/lobby.ts`
 
 **Tasks:**
-- [ ] Create `addPlayer(name)` function that generates player ID
-- [ ] Validate MIN_PLAYERS and MAX_PLAYERS from gameRules
-- [ ] Create `removePlayer(playerId)` function
-- [ ] Create `canStartGame()` check (2-4 players)
-- [ ] Create `startGame()` function to transition to CREATION phase
-- [ ] Broadcast updated game state after player changes
+- [x] Create `addPlayer(name)` function that generates player ID
+- [x] Validate MIN_PLAYERS and MAX_PLAYERS from gameRules
+- [x] Create `removePlayer(playerId)` function
+- [x] Create `canStartGame()` check (2-4 players)
+- [x] Create `startGame()` function to transition to CREATION phase
+- [x] Broadcast updated game state after player changes
+- [x] Add name validity check (not empty)
+- [x] Add duplicate name check
+- [x] Prevent joining during active game
+- [x] Close connection on join failure
 
 **Acceptance Criteria:**
-- Cannot start with < 2 players
-- Cannot add > 4 players
-- Players get unique IDs
-- All clients receive state updates
+- ✅ Cannot start with < 2 players
+- ✅ Cannot add > 4 players
+- ✅ Players get unique IDs
+- ✅ All clients receive state updates
+- ✅ Invalid names are rejected
+- ✅ Duplicate names prevented
+- ✅ Can't join mid-game
 
-**Learning Focus:** Validation logic, game rules enforcement, state transitions
+**Learning Focus:** Validation logic, game rules enforcement, state transitions, error handling
 
 ---
 
 ### 2.3 Connection Handler
-**Status:** Not Started  
+**Status:** ✅ Complete
 **Files:** `backend/src/handlers/connection.ts`
 
 **Tasks:**
-- [ ] Handle JOIN_GAME message
-- [ ] Extract player name from message
-- [ ] Add player to lobby
-- [ ] Store player's WebSocket connection
-- [ ] Handle disconnect event (remove player)
-- [ ] Map socket to player ID for message routing
+- [x] Handle JOIN_GAME message
+- [x] Extract player name from message
+- [x] Add player to lobby
+- [x] Store player's WebSocket connection
+- [x] Handle disconnect event (remove player)
+- [x] Map socket to player ID for message routing
+- [x] Handle START_GAME message
+- [x] Validate game can start before starting
+- [x] Prevent starting when not in LOBBY phase
 
 **Acceptance Criteria:**
-- Players can join with a name
-- Disconnected players are removed
-- Remaining players see updated list
-- Game continues with ≥2 players
+- ✅ Players can join with a name
+- ✅ Disconnected players are removed
+- ✅ Remaining players see updated list
+- ✅ Game continues with ≥2 players
+- ✅ Game can be started with START_GAME message
+- ✅ Proper error handling with connection closure
 
-**Learning Focus:** Message handling, connection mapping, graceful disconnection
+**Learning Focus:** Message handling, connection mapping, graceful disconnection, switch statements
 
 ---
 

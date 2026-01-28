@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import { initializeWebSocketServer, broadcast } from './socketServer';
+import { getGameState, addPlayer, getPlayerCount } from './game/gameState'
 
 // Create Express application instance
 const app = express();
@@ -21,6 +22,11 @@ app.get('/health', (req, res) => {
     });
 });
 
+app.get('/game-state', (req, res) => {
+    res.json(getGameState());
+});
+
+// Testing routes
 app.post('/test-broadcast', (req, res) => {
     broadcast({
         type: 'TEST_BROADCAST',
@@ -29,6 +35,21 @@ app.post('/test-broadcast', (req, res) => {
     });
 
     res.json({ success: true, message: 'Broadcast sent' });
+});
+
+app.post('/test-add-player', (req, res) => {
+    addPlayer({
+        id: `player-${Date.now()}`,
+        name: req.body.name || 'Test Player',
+        points: 0,
+        connected: true
+    });
+    
+    res.json({
+        success: true,
+        playerCount: getPlayerCount(),
+        gameState: getGameState()
+    });
 });
 
 // Start server

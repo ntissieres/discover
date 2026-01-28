@@ -78,3 +78,15 @@ music-game/
 │       └── utils/
 │           └── logger.ts
 
+join a game :
+const ws = new WebSocket('ws://localhost:3000');
+ws.onmessage = (e) => console.log('Tab 1:', JSON.parse(e.data));
+ws.onopen = () => {
+    ws.send(JSON.stringify({
+        type: 'JOIN_GAME',
+        playerName: 'Alice'
+    }));
+};
+
+start a game:
+ws.send(JSON.stringify({ type: 'START_GAME' }));
