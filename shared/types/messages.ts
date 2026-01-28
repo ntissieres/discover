@@ -1,0 +1,11 @@
+import { GameState } from "./game";
+import { Track } from "./track";
+
+export type ClientToServerMessage = 
+    | { type: "JOIN_GAME"; playerName: string }
+    | { type: "SUBMIT_TRACK"; track: Track }
+    | { type: "SELECT_TRACK"; trackId: string };
+
+export type ServerToClientMessage = 
+    | { type: "GAME_STATE_UPDATE"; gameState: GameState }
+    | { type: "ERROR"; message: string };
