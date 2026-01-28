@@ -8,5 +8,6 @@ export type ClientToServerMessage =
     | { type: "SELECT_TRACK"; trackId: string };
 
 export type ServerToClientMessage = 
+    | { type: "CONNECTED"; message: string }
     | { type: "GAME_STATE_UPDATE"; gameState: GameState }
     | { type: "ERROR"; message: string };

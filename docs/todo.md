@@ -149,107 +149,114 @@ This document follows the recommended learning path to build the multiplayer mus
 
 ---
 
-## 3. Frontend Setup & Connection
+## 3. Frontend Setup & Connection ✅
 
 ### 3.1 Setup Frontend Package.json
-**Status:** Not Started  
+**Status:** ✅ Complete
 **Files:** `frontend/package.json`, `frontend/tsconfig.json`
 
 **Tasks:**
-- [ ] Add Vite as dev dependency
-- [ ] Add TypeScript
-- [ ] Create dev script with Vite
-- [ ] Create build script
-- [ ] Configure TypeScript for DOM
-- [ ] Set up path aliases for clean imports
+- [x] Add Vite as dev dependency
+- [x] Add TypeScript
+- [x] Create dev script with Vite
+- [x] Create build script
+- [x] Configure TypeScript for DOM
+- [x] Set up path aliases for clean imports
 
 **Acceptance Criteria:**
-- `npm install` runs without errors
-- `npm run dev` starts dev server on port 5173
-- Can access `http://localhost:5173` in browser
+- ✅ `npm install` runs without errors
+- ✅ `npm run dev` starts dev server on port 5173
+- ✅ Can access `http://localhost:5173` in browser
 
 **Learning Focus:** Frontend build tools, Vite configuration, TypeScript for web
 
 ---
 
 ### 3.2 Create HTML Structure
-**Status:** Not Started  
-**Files:** `frontend/index.html`
+**Status:** ✅ Complete
+**Files:** `frontend/index.html`, `frontend/src/styles/main.css`
 
 **Tasks:**
-- [ ] Add basic HTML5 structure
-- [ ] Link to main.css
-- [ ] Create container divs for different phases
-- [ ] Add script tag for main.ts (type="module")
-- [ ] Add meta tags for viewport
+- [x] Add basic HTML5 structure
+- [x] Link to main.css
+- [x] Create container divs for different phases
+- [x] Add script tag for main.ts (type="module")
+- [x] Add meta tags for viewport
+- [x] Create basic CSS styling
 
 **Acceptance Criteria:**
-- HTML validates
-- Page loads without errors
-- TypeScript module loads
+- ✅ HTML validates
+- ✅ Page loads without errors
+- ✅ TypeScript module loads
+- ✅ Dark theme displays correctly
 
-**Learning Focus:** HTML5 structure, module script loading
+**Learning Focus:** HTML5 structure, module script loading, phase-based UI containers
 
 ---
 
 ### 3.3 WebSocket Client
-**Status:** Not Started  
+**Status:** ✅ Complete
 **Files:** `frontend/src/network/socket.ts`
 
 **Tasks:**
-- [ ] Create WebSocket connection to `ws://localhost:3000`
-- [ ] Handle connection open event
-- [ ] Handle incoming messages (parse JSON)
-- [ ] Create `send()` helper function
-- [ ] Handle connection errors
-- [ ] Handle reconnection logic
-- [ ] Export singleton socket instance
+- [x] Create WebSocket connection to `ws://localhost:3000`
+- [x] Handle connection open event
+- [x] Handle incoming messages (parse JSON)
+- [x] Create `send()` helper function
+- [x] Handle connection errors
+- [x] Handle reconnection logic
+- [x] Export singleton socket instance
 
 **Acceptance Criteria:**
-- Connects to backend successfully
-- Can send and receive messages
-- Console logs show connection status
+- ✅ Connects to backend successfully
+- ✅ Can send and receive messages
+- ✅ Console logs show connection status
+- ✅ Proper error handling
 
-**Learning Focus:** WebSocket client API, connection management, error handling
+**Learning Focus:** WebSocket client API, connection management, error handling, singleton pattern
 
 ---
 
 ### 3.4 Network Message Handlers
-**Status:** Not Started  
+**Status:** ✅ Complete
 **Files:** `frontend/src/network/handlers.ts`
 
 **Tasks:**
-- [ ] Create handler for GAME_STATE_UPDATE messages
-- [ ] Create handler for ERROR messages
-- [ ] Update local game state when messages arrive
-- [ ] Route messages to appropriate handlers
-- [ ] Log received messages for debugging
+- [x] Create handler for GAME_STATE_UPDATE messages
+- [x] Create handler for ERROR messages
+- [x] Create handler for CONNECTED messages
+- [x] Update local game state when messages arrive
+- [x] Route messages to appropriate handlers
+- [x] Log received messages for debugging
 
 **Acceptance Criteria:**
-- Game state updates when server sends new state
-- Error messages are displayed to user
+- ✅ Game state updates when server sends new state
+- ✅ Error messages are displayed to user
+- ✅ All message types handled correctly
 
 **Learning Focus:** Message routing, event handlers, state synchronization
 
 ---
 
 ### 3.5 Frontend Game State
-**Status:** Not Started  
+**Status:** ✅ Complete
 **Files:** `frontend/src/game/gameState.ts`
 
 **Tasks:**
-- [ ] Create local copy of game state
-- [ ] Create `updateGameState()` function
-- [ ] Create event emitter for state changes
-- [ ] Create getters for current phase, players, tracks
-- [ ] Find local player in player list
+- [x] Create local copy of game state
+- [x] Create `updateGameState()` function
+- [x] Create event emitter for state changes
+- [x] Create getters for current phase, players, tracks
+- [x] Return copies to prevent mutations
+- [x] Implement observer pattern
 
 **Acceptance Criteria:**
-- Local state stays in sync with server
-- UI can query current game state
-- State changes trigger UI updates
+- ✅ Local state stays in sync with server
+- ✅ UI can query current game state
+- ✅ State changes trigger UI updates
+- ✅ Immutability maintained with copies
 
-**Learning Focus:** Client-side state management, observer pattern
+**Learning Focus:** Client-side state management, observer pattern, immutability
 
 ---
 
