@@ -60,20 +60,24 @@ export function initializeWebSocketServer(httpServer: Server) {
     return wss;
 }
 
-// Broadcast a message to all connected clients
+// Broadcast to all players who have joined the game
 export function broadcast(message: object) {
     const messageStr = JSON.stringify(message);
     let sentCount = 0;
 
-    clients.forEach((client) => {
+    // Bad design: I keep the require to know where it is
+    const { getPlayerSockets } = require('./handlers/connection');
+    const playerSockets = getPlayerSockets();
+
+    playerSockets.forEach((socket: WebSocket) => {
         // Check if connection is open before sending
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(messageStr);
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(messageStr);
             sentCount++;
         }
     });
 
-    console.log(`📢 Broadcast to ${sentCount} clients:`, (message as any).type || 'message');
+    console.log(`📢 Broadcast to ${sentCount} players:`, (message as any).type || 'message');
 }
 
 // Send message to specific client

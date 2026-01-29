@@ -44,24 +44,33 @@ export function handleClientMessage(ws: WebSocket, message: ClientToServerMessag
 // Handle player joining
 function handleJoinGame(ws: WebSocket, playerName: string): void {
     try {
-        // Add player to lobby
+        // Add player to lobby (this broadcasts to existing players)
         const player = joinGame(playerName);
 
-        // Map this WebSocket to the player
+        // Map this WebSocket to the player (AFTER join so broadcast goes to others)
         socketToPlayerId.set(ws, player.id);
         playerIdToSocket.set(player.id, ws);
 
+        // Send game state directly to the new player (since broadcast already went out)
+        // Bad design. I keep the require to know where it is
+        const { getGameState } = require('../game/gameState');
+        sendToClient(ws, {
+            type: 'GAME_STATE_UPDATE',
+            gameState: getGameState()
+        });
+
         console.log(`✅ ${playerName} joined as ${player.id}`);
     } catch (error) {
-        // Send error message
+        // Send error message and let them retry
         sendToClient(ws, {
             type: 'ERROR',
             message: error instanceof Error ? error.message : 'Failed to join game'
         });
 
-        // Close the connection since they can't join
-        console.log(`❌ Closing connection: ${error instanceof Error ? error.message : 'Join failed'}`);
-        ws.close(1008, error instanceof Error ? error.message : 'Failed to join game');
+        console.log(`⚠️  Join failed: ${error instanceof Error ? error.message : 'Unknown error'} (connection kept open for retry)`);
+        
+        // Don't close connection - allow them to try again with a different name
+        // They won't receive broadcasts since they're not in playerIdToSocket Map
     }
 }
 
@@ -96,4 +105,9 @@ export function getPlayerId(ws: WebSocket): string | undefined {
 // Get WebSocket from player ID
 export function getSocket(playerId: string): WebSocket | undefined {
     return playerIdToSocket.get(playerId);
+}
+
+// Get all player sockets
+export function getPlayerSockets(): Set<WebSocket> {
+    return new Set(playerIdToSocket.values());
 }

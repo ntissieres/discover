@@ -2,8 +2,9 @@ import { connectToServer, onMessage, onOpen } from './network/socket';
 import { handleServerMessage } from './network/handlers';
 import { onStateChange } from './game/gameState';
 import { initAudioContext } from './audio/audioContext';
-import { Synth } from './audio/synth';
-import { initPlayback, playNoteName, playMidiNote, stopNote, midiToFrequency, noteNameToMidi } from './audio/playback';
+import { initPlayback, playNoteName, stopNote, midiToFrequency, noteNameToMidi } from './audio/playback';
+import { MelodyGrid } from './melody/grid';
+import { MelodyPlayer } from './melody/player';
 
 console.log('🎮 Discover - Starting...');
 
@@ -15,14 +16,12 @@ function tryInitAudio() {
 
     try {
         initAudioContext();
+        initPlayback(); // Initialize playback system
         audioInitialized = true;
         console.log('🔊 Audio is ready!');
 
         // Remove the click listener once initialized
         document.removeEventListener('click', tryInitAudio);
-
-        // TEST: Create a synth and play a note
-        testSynth();
     } catch (error) {
         console.error('Failed to initialize audio:', error);
     }
@@ -87,9 +86,68 @@ onStateChange((state) => {
     console.log('🎯 Phase changed to:', state.phase);
     console.log('👥 Players:', state.players.length);
 
-    // TODO: Update UI based on phase
-    // We'll implement this in the next tasks
+    // Show/hide phase containers based on current phase
+    showPhaseContainer(state.phase);
 });
+
+// Show the correct phase container
+function showPhaseContainer(phase: string): void {
+    // Hide all containers
+    const containers = document.querySelectorAll('.phase-container');
+    containers.forEach(container => {
+        (container as HTMLElement).style.display = 'none';
+    });
+
+    // Show the active one
+    let activeContainerId = '';
+    switch (phase) {
+        case 'LOBBY':
+            activeContainerId = 'lobby-content';
+            break;
+        case 'CREATION':
+            activeContainerId = 'creation-container';
+            break;
+        case 'LISTENING':
+            activeContainerId = 'listening-container';
+            break;
+        case 'SELECTION':
+            activeContainerId = 'selection-container';
+            break;
+        case 'RESULTS':
+            activeContainerId = 'results-container';
+            break;
+    }
+
+    if (activeContainerId) {
+        const activeContainer = document.getElementById(activeContainerId);
+        if (activeContainer) {
+            activeContainer.style.display = 'block';
+            console.log(`📺 Showing ${phase} phase`);
+        }
+    }
+}
 
 // Connect to server
 connectToServer('ws://localhost:3000');
+
+// Initialize grid
+const grid = new MelodyGrid('creation-container');
+
+// Initialize melody player
+const melodyPlayer = new MelodyPlayer(120); // 120 BPM
+
+// Test playing a melody
+function testMelodyPlayback() {
+    const melody = grid.serialize();
+
+    if (melody.notes.length === 0) {
+        console.log('⚠️  Grid is empty, add some notes first!');
+        return;
+    }
+
+    melodyPlayer.play(melody, true); // Play with loop
+}
+
+// Add to window for console testing
+(window as any).testMelody = testMelodyPlayback;
+(window as any).stopMelody = () => melodyPlayer.stop();

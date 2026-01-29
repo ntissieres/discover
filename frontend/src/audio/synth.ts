@@ -3,8 +3,7 @@ import { SynthSettings, Waveform } from '../../../shared/index';
 
 export class Synth {
     private settings: SynthSettings;
-    private oscillator: OscillatorNode | null = null;
-    private gainNode: GainNode | null = null;
+    private activeNotes: Map<number, { oscillator: OscillatorNode; gainNode: GainNode }>;
     private masterGain: GainNode;
 
     constructor(settings?: SynthSettings) {
@@ -19,6 +18,9 @@ export class Synth {
                 release: 0.3
             }
         };
+
+        // Track multiple active notes
+        this.activeNotes = new Map();
 
         // Create the master gain node (connects to speakers)
         const ctx = getAudioContext();
@@ -40,79 +42,80 @@ export class Synth {
 
     // Play a note at a given frequency
     playNote(frequency: number): void {
-        // Stop any currently playing note
-        this.stopNote();
-
         const ctx = getAudioContext();
         const now = ctx.currentTime;
         
-        // Create NEW gain node for this note (avoids scheduling conflicts)
-        this.gainNode = ctx.createGain();
-        this.gainNode.connect(this.masterGain);
+        // Create NEW gain node for this note
+        const gainNode = ctx.createGain();
+        gainNode.connect(this.masterGain);
         
         // Create oscillator (sound source)
-        this.oscillator = ctx.createOscillator();
-        this.oscillator.type = this.settings.waveform;
-        this.oscillator.frequency.value = frequency;
+        const oscillator = ctx.createOscillator();
+        oscillator.type = this.settings.waveform;
+        oscillator.frequency.value = frequency;
 
         // Connect oscillator to its own gain node
-        this.oscillator.connect(this.gainNode);
+        oscillator.connect(gainNode);
 
         // Apply ADSR envelope to gain
         const { attack, decay, sustain } = this.settings.adsr;
         const targetVolume = this.settings.volume;
 
         // Attack: Ramp up to full volume
-        this.gainNode.gain.setValueAtTime(0, now);
-        this.gainNode.gain.linearRampToValueAtTime(targetVolume, now + attack);
+        gainNode.gain.setValueAtTime(0, now);
+        gainNode.gain.linearRampToValueAtTime(targetVolume, now + attack);
 
         // Decay: Ramp down to sustain level
-        this.gainNode.gain.linearRampToValueAtTime(
+        gainNode.gain.linearRampToValueAtTime(
             targetVolume * sustain,
             now + attack + decay
         );
 
         // Start the oscillator
-        this.oscillator.start(now);
+        oscillator.start(now);
 
-        console.log(`🎵 Playing note: ${frequency.toFixed(2)} Hz (${this.settings.waveform})`);
+        // Store in active notes map (use frequency as key)
+        this.activeNotes.set(frequency, { oscillator, gainNode });
+
+        console.log(`🎵 Playing note: ${frequency.toFixed(2)} Hz (${this.settings.waveform}) [${this.activeNotes.size} active]`);
     }
 
     // Stop the currently playing note
     stopNote(): void {
-        if (!this.oscillator || !this.gainNode) {
-            return; // No note playing
+        if (this.activeNotes.size === 0) {
+            return; // No notes playing
         }
 
         const ctx = getAudioContext();
         const now = ctx.currentTime;
         const { release } = this.settings.adsr;
 
-        // Release: Fade out
-        this.gainNode.gain.cancelScheduledValues(now);
-        this.gainNode.gain.setValueAtTime(this.gainNode.gain.value, now);
-        this.gainNode.gain.linearRampToValueAtTime(0, now + release);
+        // Stop all active notes
+        this.activeNotes.forEach(({ oscillator, gainNode }, frequency) => {
+            // Release: Fade out
+            gainNode.gain.cancelScheduledValues(now);
+            gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+            gainNode.gain.linearRampToValueAtTime(0, now + release);
 
-        // Stop oscillator after release
-        this.oscillator.stop(now + release);
+            // Stop oscillator after release
+            oscillator.stop(now + release);
 
-        // Cleanup
-        const osc = this.oscillator;
-        const gain = this.gainNode;
-        osc.onended = () => {
-            osc.disconnect();
-            gain.disconnect();
-        }
+            // Cleanup
+            oscillator.onended = () => {
+                oscillator.disconnect();
+                gainNode.disconnect();
+            }
+        });
 
-        this.oscillator = null;
-        this.gainNode = null;
+        // Clear all active notes
+        this.activeNotes.clear();
 
-        console.log('🔇 Note stopped');
+        console.log('🔇 All notes stopped');
     }
 
     // Check if currently playing
     isPlaying(): boolean {
-        return this.oscillator !== null;
+        return this.activeNotes.size > 0;
     }
 
     // Cleanup resources
@@ -121,4 +124,3 @@ export class Synth {
         this.masterGain.disconnect();
     }
 }
-
