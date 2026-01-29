@@ -78,10 +78,10 @@ export function midiToNoteName(midiNote: number): string {
 }
 
 // Play a note by MIDI number
-export function playMidiNote(midiNote: number): void {
+export function playMidiNote(midiNote: number): number {
     const frequency = midiToFrequency(midiNote);
     const synth = getSynth();
-    synth.playNote(frequency);
+    return synth.playNote(frequency);
 }
 
 // Play a note by name (e.g., "C4", "A#5")
@@ -94,6 +94,12 @@ export function playNoteName(noteName: string): void {
 export function stopNote(): void {
     const synth = getSynth();
     synth.stopNote();
+}
+
+// Stop note by its ID
+export function stopNoteById(noteId: number): void {
+    const synth = getSynth();
+    synth.stopNoteById(noteId);
 }
 
 // Update synth settings

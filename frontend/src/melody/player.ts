@@ -1,5 +1,5 @@
 import { MelodyData } from '../../../shared/index';
-import { playMidiNote, stopNote } from '../audio/playback';
+import { playMidiNote, stopNote, stopNoteById } from '../audio/playback';
 
 // Configuration
 const DEFAULT_BPM = 120;
@@ -57,13 +57,16 @@ export class MelodyPlayer {
                 // Play all notes at this step (chord support!)
                 pitches.forEach(pitch => {
                     const midiNote = this.baseMidi + pitch;
-                    playMidiNote(midiNote);
+                    const noteId = playMidiNote(midiNote);
 
                     // Stop note before next step
                     const noteLength = stepDuration * 0.8; // 80% of step duration
-                    window.setTimeout(() => {
-                        stopNote();
+                    const stopTimeoutId = window.setTimeout(() => {
+                        stopNoteById(noteId);
                     }, noteLength);
+                    
+                    // IMPORTANT: Track this timeout so it gets cleared on stop!
+                    this.currentTimeouts.push(stopTimeoutId);
                 });
 
                 console.log(`🎹 Step ${step}: playing ${pitches.length} note(s)`)

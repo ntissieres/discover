@@ -148,6 +148,63 @@ function testMelodyPlayback() {
     melodyPlayer.play(melody, true); // Play with loop
 }
 
+// Quick test with pre-made melody (chords + sequential notes)
+function quickTest() {
+    // Initialize audio if needed
+    if (!audioInitialized) {
+        tryInitAudio();
+    }
+
+    console.log('🎵 Quick test: Playing pre-made melody with chords and close notes');
+    
+    // Create a test melody with chords and sequential notes
+    const testMelody = {
+        steps: 16,
+        notes: [
+            // Step 0: C major chord (C-E-G)
+            { step: 0, pitch: 0 },  // C
+            { step: 0, pitch: 4 },  // E
+            { step: 0, pitch: 7 },  // G
+            
+            // Step 2: Single note
+            { step: 2, pitch: 2 },  // D
+            
+            // Step 3: Two close notes
+            { step: 3, pitch: 3 },  // Eb
+            { step: 3, pitch: 4 },  // E
+            
+            // Step 4: F major chord
+            { step: 4, pitch: 5 },  // F
+            { step: 4, pitch: 9 },  // A
+            { step: 4, pitch: 12 }, // C
+            
+            // Step 6-7: Sequential single notes (close timing)
+            { step: 6, pitch: 7 },  // G
+            { step: 7, pitch: 8 },  // Ab
+            
+            // Step 8: G major chord
+            { step: 8, pitch: 7 },  // G
+            { step: 8, pitch: 11 }, // B
+            { step: 8, pitch: 14 }, // D
+            
+            // Step 10-11-12: Fast sequential notes
+            { step: 10, pitch: 9 },  // A
+            { step: 11, pitch: 10 }, // Bb
+            { step: 12, pitch: 11 }, // B
+            
+            // Step 14: Final chord
+            { step: 14, pitch: 0 },  // C
+            { step: 14, pitch: 7 },  // G
+            { step: 14, pitch: 12 }, // C (octave)
+        ]
+    };
+
+    melodyPlayer.stop(); // Stop any current playback
+    melodyPlayer.play(testMelody, false); // Play with loop
+    console.log('🔁 Looping test melody. Type stopMelody() to stop.');
+}
+
 // Add to window for console testing
 (window as any).testMelody = testMelodyPlayback;
+(window as any).quickTest = quickTest;
 (window as any).stopMelody = () => melodyPlayer.stop();

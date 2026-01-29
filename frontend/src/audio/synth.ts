@@ -5,6 +5,7 @@ export class Synth {
     private settings: SynthSettings;
     private activeNotes: Map<number, { oscillator: OscillatorNode; gainNode: GainNode }>;
     private masterGain: GainNode;
+    private nextNoteId: number = 0;
 
     constructor(settings?: SynthSettings) {
         // Default settings if none provided
@@ -41,9 +42,13 @@ export class Synth {
     }
 
     // Play a note at a given frequency
-    playNote(frequency: number): void {
+    // Returns the note ID
+    playNote(frequency: number): number {
         const ctx = getAudioContext();
         const now = ctx.currentTime;
+        
+        // Generate unique ID
+        const noteId = this.nextNoteId++;
         
         // Create NEW gain node for this note
         const gainNode = ctx.createGain();
@@ -74,10 +79,12 @@ export class Synth {
         // Start the oscillator
         oscillator.start(now);
 
-        // Store in active notes map (use frequency as key)
-        this.activeNotes.set(frequency, { oscillator, gainNode });
+        // Store in active notes map using the ID as key
+        this.activeNotes.set(noteId, { oscillator, gainNode });
 
-        console.log(`🎵 Playing note: ${frequency.toFixed(2)} Hz (${this.settings.waveform}) [${this.activeNotes.size} active]`);
+        console.log(`🎵 Playing note: ${frequency.toFixed(2)} Hz [ID: ${noteId}]`);
+        
+        return noteId;
     }
 
     // Stop the currently playing note
@@ -111,6 +118,39 @@ export class Synth {
         this.activeNotes.clear();
 
         console.log('🔇 All notes stopped');
+    }
+
+    // Stop a specific note by its ID
+    stopNoteById(noteId: number): void {
+        const note = this.activeNotes.get(noteId);
+        if (!note) {
+            return; // Already stopped or doesn't exist
+        }
+
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const { release } = this.settings.adsr;
+
+        const { oscillator, gainNode } = note;
+
+        // Release: Fade out
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+        gainNode.gain.linearRampToValueAtTime(0, now + release);
+
+        // Stop oscillator after release
+        oscillator.stop(now + release);
+
+        // Cleanup
+        oscillator.onended = () => {
+            oscillator.disconnect();
+            gainNode.disconnect();
+        }
+
+        // Remove from active notes
+        this.activeNotes.delete(noteId);
+
+        console.log(`🔇 Note ${noteId} stopped`);
     }
 
     // Check if currently playing
