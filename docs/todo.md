@@ -260,71 +260,76 @@ This document follows the recommended learning path to build the multiplayer mus
 
 ---
 
-## 4. Audio Engine
+## 4. Audio Engine ✅
 
 ### 4.1 Audio Context Initialization
-**Status:** Not Started  
+**Status:** ✅ Complete  
 **Files:** `frontend/src/audio/audioContext.ts`
 
 **Tasks:**
-- [ ] Create singleton AudioContext
-- [ ] Handle suspended state (requires user interaction)
-- [ ] Create `initAudio()` function called on first user click
-- [ ] Add function to check if audio is ready
-- [ ] Handle browser compatibility
+- [x] Create singleton AudioContext
+- [x] Handle suspended state (requires user interaction)
+- [x] Create `initAudio()` function called on first user click
+- [x] Add function to check if audio is ready
+- [x] Handle browser compatibility
 
 **Acceptance Criteria:**
-- AudioContext only created once
-- No autoplay warnings in console
-- Audio initializes on user interaction
+- ✅ AudioContext only created once
+- ✅ No autoplay warnings in console
+- ✅ Audio initializes on user interaction
 
 **Learning Focus:** Web Audio API basics, browser autoplay policies, singleton pattern
 
 ---
 
 ### 4.2 Build Synthesizer
-**Status:** Not Started  
+**Status:** ✅ Complete  
 **Files:** `frontend/src/audio/synth.ts`
 
 **Tasks:**
-- [ ] Create Synth class
-- [ ] Store synth settings (waveform, volume, ADSR)
-- [ ] Create method to update settings
-- [ ] Create audio node graph (Oscillator → Gain → Destination)
-- [ ] Implement ADSR envelope calculation
-- [ ] Apply envelope to gain over time
+- [x] Create Synth class
+- [x] Store synth settings (waveform, volume, ADSR)
+- [x] Create method to update settings
+- [x] Create audio node graph (Oscillator → Gain → Master Gain → Destination)
+- [x] Implement ADSR envelope calculation
+- [x] Apply envelope to gain over time
+- [x] Fix clicking issue with separate gain nodes per note
 
 **Acceptance Criteria:**
-- Can change waveform (sine/saw/square)
-- Volume control works
-- ADSR shapes the sound naturally
-- No audio clicks or pops
+- ✅ Can change waveform (sine/saw/square)
+- ✅ Volume control works
+- ✅ ADSR shapes the sound naturally
+- ✅ No audio clicks or pops
 
-**Learning Focus:** Audio synthesis, node graphs, envelope shaping, audio scheduling
+**Learning Focus:** Audio synthesis, node graphs, envelope shaping, audio scheduling, polyphonic architecture
 
 ---
 
 ### 4.3 Note Playback API
-**Status:** Not Started  
+**Status:** ✅ Complete  
 **Files:** `frontend/src/audio/playback.ts`
 
 **Tasks:**
-- [ ] Create `playNote(frequency)` function
-- [ ] Start oscillator with given frequency
-- [ ] Apply attack phase to gain
-- [ ] Apply decay to sustain level
-- [ ] Create `stopNote()` function
-- [ ] Apply release phase
-- [ ] Stop and cleanup oscillator after release
-- [ ] Prevent multiple simultaneous notes (monophonic)
+- [x] Create `playNote(frequency)` function
+- [x] Start oscillator with given frequency
+- [x] Apply attack phase to gain
+- [x] Apply decay to sustain level
+- [x] Create `stopNote()` function
+- [x] Apply release phase
+- [x] Stop and cleanup oscillator after release
+- [x] Prevent multiple simultaneous notes (monophonic)
+- [x] Add MIDI-to-frequency conversion
+- [x] Add note name parsing (e.g., "C4" → MIDI → frequency)
 
 **Acceptance Criteria:**
-- Notes sound smooth (no clicks)
-- Envelope shapes each note
-- Notes can be played sequentially
-- Cleanup prevents memory leaks
+- ✅ Notes sound smooth (no clicks)
+- ✅ Envelope shapes each note
+- ✅ Notes can be played sequentially
+- ✅ Cleanup prevents memory leaks
+- ✅ MIDI conversion accurate
+- ✅ Note name parsing works
 
-**Learning Focus:** Audio scheduling, envelope timing, resource cleanup
+**Learning Focus:** Audio scheduling, envelope timing, resource cleanup, MIDI standard
 
 ---
 
