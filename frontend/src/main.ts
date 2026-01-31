@@ -1,10 +1,10 @@
 import { connectToServer, onMessage, onOpen } from './network/socket';
 import { handleServerMessage } from './network/handlers';
-import { onStateChange } from './game/gameState';
+import { onStateChange, getLocalPlayerId } from './game/gameState';
 import { initAudioContext } from './audio/audioContext';
 import { initPlayback, playNoteName, stopNote, midiToFrequency, noteNameToMidi } from './audio/playback';
-import { MelodyGrid } from './melody/grid';
-import { MelodyPlayer } from './melody/player';
+import { initCreation, resetCreationUI, updateCreationTimer } from './ui/creation';
+import { updateLobbyUI, initLobby } from './ui/lobby';
 
 console.log('🎮 Discover - Starting...');
 
@@ -81,13 +81,47 @@ onMessage((message) => {
     handleServerMessage(message);
 });
 
+// Track previous phase to detect transitions
+let previousPhase: string | null = null;
+
 // React to state changes
 onStateChange((state) => {
     console.log('🎯 Phase changed to:', state.phase);
     console.log('👥 Players:', state.players.length);
 
+    const localPlayerId = getLocalPlayerId();
+
+    // If we're not a player, always show lobby (spectator mode)
+    if (!localPlayerId) {
+        showPhaseContainer('LOBBY');
+        updateLobbyUI();
+        previousPhase = state.phase;
+        return;
+    }
+
+    // We're a player - show appropriate phase UI
+    if (state.phase === 'LOBBY') {
+        updateLobbyUI();
+    }
+
+    // Handle CREATION phase
+    if (state.phase === 'CREATION') {
+        // Only reset UI when we TRANSITION into creation phase
+        // (not on every timer tick)
+        if (previousPhase !== 'CREATION') {
+            console.log('🆕 Entering CREATION phase - resetting UI');
+            resetCreationUI();
+        }
+
+        // Update timer display every time (even during ticks)
+        updateCreationTimer(state.roundTimeRemaining);
+    }
+
     // Show/hide phase containers based on current phase
     showPhaseContainer(state.phase);
+    
+    // Remember current phase for next update
+    previousPhase = state.phase;
 });
 
 // Show the correct phase container
@@ -130,15 +164,16 @@ function showPhaseContainer(phase: string): void {
 // Connect to server
 connectToServer('ws://localhost:3000');
 
-// Initialize grid
-const grid = new MelodyGrid('creation-container');
+// Initialize lobby UI
+initLobby('lobby-content');
+updateLobbyUI();
 
-// Initialize melody player
-const melodyPlayer = new MelodyPlayer(120); // 120 BPM
+// Initialize creation UI (creates grid and player internally)
+const { grid: melodyGrid, player: melodyPlayer } = initCreation();
 
 // Test playing a melody
 function testMelodyPlayback() {
-    const melody = grid.serialize();
+    const melody = melodyGrid.serialize();
 
     if (melody.notes.length === 0) {
         console.log('⚠️  Grid is empty, add some notes first!');
@@ -200,11 +235,34 @@ function quickTest() {
     };
 
     melodyPlayer.stop(); // Stop any current playback
-    melodyPlayer.play(testMelody, false); // Play with loop
+    melodyPlayer.play(testMelody, true); // Play with loop
     console.log('🔁 Looping test melody. Type stopMelody() to stop.');
+}
+
+// Simple single-note test to isolate clicking issue
+function simpleTest() {
+    // Initialize audio if needed
+    if (!audioInitialized) {
+        tryInitAudio();
+    }
+
+    console.log('🎵 Simple test: Single note repeated every 1 second');
+    console.log('Watch for clicks. Press stopMelody() to stop.');
+    
+    const testMelody = {
+        steps: 8,
+        notes: [
+            { step: 0, pitch: 0 },  // C
+            { step: 4, pitch: 0 },  // C again
+        ]
+    };
+
+    melodyPlayer.stop();
+    melodyPlayer.play(testMelody, true);
 }
 
 // Add to window for console testing
 (window as any).testMelody = testMelodyPlayback;
 (window as any).quickTest = quickTest;
+(window as any).simpleTest = simpleTest;
 (window as any).stopMelody = () => melodyPlayer.stop();

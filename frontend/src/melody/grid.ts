@@ -13,6 +13,7 @@ export class MelodyGrid {
     private container: HTMLElement;
     private gridElement: HTMLDivElement;
     private activeNotes: Set<string>; // Store as "step,pitch" strings
+    private locked: boolean = false; // Lock grid to prevent changes
 
     constructor(containerId: string) {
         const container = document.getElementById(containerId);
@@ -50,6 +51,9 @@ export class MelodyGrid {
     }
 
     private toggleNote(step: number, pitch: number): void {
+        // Don't allow changes if locked
+        if (this.locked) return;
+        
         const key = `${step},${pitch}`;
 
         if (this.activeNotes.has(key)) {
@@ -119,5 +123,19 @@ export class MelodyGrid {
         });
 
         console.log(`📥 Loaded melody: ${melodyData.notes.length} notes`)
+    }
+
+    // Lock or unlock the grid (prevent/allow editing)
+    setLocked(locked: boolean): void {
+        this.locked = locked;
+        
+        // Visual feedback: dim the grid when locked
+        if (locked) {
+            this.gridElement.style.opacity = '0.6';
+            this.gridElement.style.pointerEvents = 'none';
+        } else {
+            this.gridElement.style.opacity = '1';
+            this.gridElement.style.pointerEvents = 'auto';
+        }
     }
 }

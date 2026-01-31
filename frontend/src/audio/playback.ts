@@ -1,4 +1,4 @@
-import { Synth } from './synth';
+import { Synth } from './synth_pooled';
 import { SynthSettings } from '../../../shared/index';
 
 // Global synth instance (could be multiple later)

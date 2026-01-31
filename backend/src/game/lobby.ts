@@ -11,6 +11,7 @@ import {
     clearTracks
 } from './gameState';
 import { broadcast } from '../socketServer';
+import { startRoundTimer, resetRoundTimer } from './gameState';
 
 // Join the game lobby
 export function joinGame(playerName: string): Player {
@@ -102,8 +103,14 @@ export function startGame(): void {
     // Clear any old tracks from previous games
     clearTracks();
 
+    // Reset timer to full duration
+    resetRoundTimer();
+
     // Transition to CREATION phase
     setPhase(GamePhase.CREATION);
+
+    // Start the countdown timer
+    startRoundTimer();
 
     // Broadcast new state
     broadcastGameState();

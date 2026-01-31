@@ -1,5 +1,8 @@
 import { ServerToClientMessage } from '../../../shared/index';
-import { updateGameState } from '../game/gameState';
+import { updateGameState, setLocalPlayerId, getLocalPlayerId } from '../game/gameState';
+
+// Track if we're waiting for join confirmation
+let waitingForJoinConfirmation = false;
 
 // Handle incoming server messages
 export function handleServerMessage(message: ServerToClientMessage): void {
@@ -29,7 +32,25 @@ function handleConnected(message: { type: 'CONNECTED'; message: string }): void 
 // Handle game state updates
 function handleGameStateUpdate(message: { type: 'GAME_STATE_UPDATE'; gameState: any }): void {
     console.log('📥 Game state update received');
+    
+    // Set local player ID FIRST (before updating state)
+    // This ensures updateLobbyUI() has the correct localPlayerId when it runs
+    if (waitingForJoinConfirmation && !getLocalPlayerId()) {
+        const state = message.gameState;
+        if (state.players && state.players.length > 0) {
+            // The most recently added player is us (we just joined)
+            const lastPlayer = state.players[state.players.length - 1];
+            setLocalPlayerId(lastPlayer.id);
+        }
+    }
+
+    // Now update the state (this triggers onStateChange which updateLobbyUI)
     updateGameState(message.gameState);
+}
+
+// Export function to set waiting flag when join is sent
+export function setWaitingForJoin() {
+    waitingForJoinConfirmation = true;
 }
 
 // Handle error messages

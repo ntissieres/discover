@@ -8,6 +8,9 @@ let currentGameState: GameState = {
     tracks: []
 };
 
+// Track local player ID (set when we join)
+let localPlayerId: string | null = null;
+
 // Callbacks for state changes
 type StateChangeHandler = (state: GameState) => void;
 let onStateChangeCallback: StateChangeHandler | null = null;
@@ -44,4 +47,15 @@ export function getTracks() {
 // Register callback for state changes
 export function onStateChange(callback: StateChangeHandler): void {
     onStateChangeCallback = callback;
+}
+
+// Set local player ID (called when joining)
+export function setLocalPlayerId(playerId: string): void {
+    localPlayerId = playerId;
+    console.log('🎮 Local player ID set:', playerId);
+}
+
+// Get local player ID
+export function getLocalPlayerId(): string | null {
+    return localPlayerId;
 }

@@ -24,6 +24,13 @@ export function initializeWebSocketServer(httpServer: Server) {
             message: 'Welcome to Discover!'
         }));
 
+        // Send current game state so new clients can see existing players
+        const { getGameState } = require('./game/gameState');
+        ws.send(JSON.stringify({
+            type: 'GAME_STATE_UPDATE',
+            gameState: getGameState()
+        }));
+
         // Handle incoming messages from this client
         ws.on('message', (data: Buffer) => {
             try {

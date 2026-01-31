@@ -336,67 +336,71 @@ This document follows the recommended learning path to build the multiplayer mus
 ## 5. Melody Creation
 
 ### 5.1 Build Melody Grid UI
-**Status:** Not Started  
+**Status:** ✅ Complete  
 **Files:** `frontend/src/melody/grid.ts`
 
 **Tasks:**
-- [ ] Create grid container (16 steps × 12 pitches)
-- [ ] Generate grid cells as buttons or divs
-- [ ] Add click handlers to toggle notes
-- [ ] Visual feedback for active notes (CSS class)
-- [ ] Store grid state as Set or Array
-- [ ] Create function to get all active notes
-- [ ] Create function to clear grid
+- [x] Create grid container (16 steps × 12 pitches)
+- [x] Generate grid cells as buttons or divs
+- [x] Add click handlers to toggle notes
+- [x] Visual feedback for active notes (CSS class)
+- [x] Store grid state as Set or Array
+- [x] Create function to get all active notes
+- [x] Create function to clear grid
 
 **Acceptance Criteria:**
-- Can click to add/remove notes
-- Visual feedback is immediate
-- Grid state can be read
-- Grid is visually clear
+- ✅ Can click to add/remove notes
+- ✅ Visual feedback is immediate
+- ✅ Grid state can be read
+- ✅ Grid is visually clear
 
 **Learning Focus:** Grid-based UI, DOM manipulation, state representation
 
 ---
 
 ### 5.2 Melody Serialization
-**Status:** Not Started  
+**Status:** ✅ Complete  
 **Files:** `frontend/src/melody/serializer.ts`
 
 **Tasks:**
-- [ ] Convert grid state to MelodyData format
-- [ ] Map grid positions to pitch/step values
-- [ ] Create `serialize()` function
-- [ ] Create `deserialize()` function to load melodies
-- [ ] Handle empty melodies
+- [x] Convert grid state to MelodyData format
+- [x] Map grid positions to pitch/step values
+- [x] Create `serialize()` function
+- [x] Create `deserialize()` function to load melodies
+- [x] Handle empty melodies
 
 **Acceptance Criteria:**
-- Grid state converts to JSON
-- Can recreate grid from JSON
-- Format matches MelodyData type
+- ✅ Grid state converts to JSON
+- ✅ Can recreate grid from JSON
+- ✅ Format matches MelodyData type
 
 **Learning Focus:** Data serialization, protocol design
 
 ---
 
 ### 5.3 Melody Player
-**Status:** Not Started  
+**Status:** ✅ Complete  
 **Files:** `frontend/src/melody/player.ts`
 
 **Tasks:**
-- [ ] Create MelodyPlayer class
-- [ ] Set fixed tempo (120 BPM)
-- [ ] Calculate step duration from tempo
-- [ ] Create `play()` function that loops through steps
-- [ ] Trigger synth.playNote() for active notes at each step
-- [ ] Create `stop()` function
-- [ ] Add loop option
-- [ ] Show current step visually
+- [x] Create MelodyPlayer class
+- [x] Set fixed tempo (120 BPM)
+- [x] Calculate step duration from tempo
+- [x] Create `play()` function that loops through steps
+- [x] Trigger synth.playNote() for active notes at each step
+- [x] Create `stop()` function
+- [x] Add loop option
+- [x] Show current step visually (via console logs)
 
 **Acceptance Criteria:**
-- Melody plays in rhythm
-- Timing is consistent
-- Can start/stop playback
-- Loops correctly if enabled
+- ✅ Melody plays in rhythm
+- ✅ Timing is consistent
+- ✅ Can start/stop playback
+- ✅ Loops correctly if enabled
+
+**Learning Focus:** Audio scheduling, tempo/timing, setTimeout usage, note ID tracking
+
+**Notes:** Audio clicks persist due to Web Audio API complexities with oscillator phase discontinuities. Functionality is complete and playable.
 
 **Learning Focus:** Sequencers, musical timing, interval-based execution
 

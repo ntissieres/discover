@@ -1,4 +1,5 @@
 import { GameState, GamePhase, Player, Track, GAME_RULES } from '../../../shared/index';
+import { broadcast } from '../socketServer';
 
 // Single game state instance
 let gameState: GameState = {
@@ -67,4 +68,49 @@ export function clearTracks(): void {
 // Get number of players
 export function getPlayerCount(): number {
     return gameState.players.length;
+}
+
+// Timer for countdown
+let countdownInterval: NodeJS.Timeout | null = null;
+
+// Start the round timer (call when entering CREATION phase)
+export function startRoundTimer(): void {
+    // Clear any existing timer
+    stopRoundTimer();
+
+    console.log(`⏱️ Starting round timer: ${gameState.roundTimeRemaining}s`);
+
+    countdownInterval = setInterval(() => {
+        // Decrement time
+        gameState.roundTimeRemaining = Math.max(0, gameState.roundTimeRemaining - 1);
+
+        // Broadcast updated state to all clients
+        broadcast({
+            type: 'GAME_STATE_UPDATE',
+            gameState: getGameState()
+        });
+
+        // Check if time expired
+        if (gameState.roundTimeRemaining === 0) {
+            console.log('⏰ Round timer expired');
+            stopRoundTimer();
+
+            // TODO: Transition to next phase
+            // For now, just log - we'll implement phase transitions later
+        }
+    }, 1000); // Every second
+}
+
+// Stop the round timer
+export function stopRoundTimer(): void {
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+        countdownInterval = null;
+        console.log('⏹️ Round timer stopped');
+    }
+}
+
+// Reset timer to full duration
+export function resetRoundTimer(): void {
+    gameState.roundTimeRemaining = GAME_RULES.ROUND_DURATION_SECONDS;
 }
