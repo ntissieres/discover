@@ -5,6 +5,9 @@ import { initAudioContext } from './audio/audioContext';
 import { initPlayback, playNoteName, stopNote, midiToFrequency, noteNameToMidi } from './audio/playback';
 import { initCreation, resetCreationUI, updateCreationTimer } from './ui/creation';
 import { updateLobbyUI, initLobby } from './ui/lobby';
+import { initListening, updateListeningUI } from './ui/listening';
+import { initSelection, updateSelectionUI } from './ui/selection';
+import { initResults, updateResultsUI } from './ui/results';
 
 console.log('🎮 Discover - Starting...');
 
@@ -115,6 +118,42 @@ onStateChange((state) => {
 
         // Update timer display every time (even during ticks)
         updateCreationTimer(state.roundTimeRemaining);
+    }
+
+    // Handle LISTENING phase
+    if (state.phase === 'LISTENING') {
+        // Only init UI when we TRANSITION into listening phase
+        if (previousPhase !== 'LISTENING') {
+            console.log('🎧 Entering LISTENING phase');
+            initListening();
+        }
+
+        // Update with current tracks
+        updateListeningUI(state.tracks);
+    }
+
+    // Handle SELECTION phase
+    if (state.phase === 'SELECTION') {
+        // Only init UI when we TRANSITION into selection phase
+        if (previousPhase !== 'SELECTION') {
+            console.log('🗳️ Entering SELECTION phase');
+            initSelection();
+        }
+
+        // Update with current tracks and selections
+        updateSelectionUI(state.tracks, localPlayerId, state.selections);
+    }
+
+    // Handle RESULTS phase
+    if (state.phase === 'RESULTS') {
+        // Only init UI when we TRANSITION into results phase
+        if (previousPhase !== 'RESULTS') {
+            console.log('🏆 Entering RESULTS phase');
+            initResults();
+        }
+
+        // Update with current data
+        updateResultsUI(state.players, state.tracks, state.selections);
     }
 
     // Show/hide phase containers based on current phase

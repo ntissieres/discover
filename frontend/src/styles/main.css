@@ -231,3 +231,228 @@ body {
     color: #999;
     cursor: not-allowed;
 }
+
+/* Listening Phase Styles */
+#listening-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#tracks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#tracks-list p {
+    text-align: center;
+    color: #888;
+}
+
+.track-card {
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.3s;
+}
+
+.track-card.playing {
+    border-color: #4CAF50;
+}
+
+.track-card .track-label {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.play-track-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #4CAF50;
+    border-radius: 4px;
+    background-color: #2d2d2d;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.play-track-btn:hover {
+    background-color: #3d3d3d;
+}
+
+/* Selection Phase Styles */
+#selection-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#selection-status {
+    display: none; /* Hidden by default */
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+#selection-tracks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#selection-tracks-list p {
+    text-align: center;
+    color: #888;
+}
+
+.selection-card {
+    border: 2px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.3s;
+}
+
+.selection-card.selected {
+    border-color: #4CAF50;
+}
+
+.selection-card .track-label {
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.vote-btn {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: 1px solid #2196F3;
+    border-radius: 4px;
+    background-color: #2d2d2d;
+    color: white;
+    transition: background-color 0.2s;
+}
+
+.vote-btn:hover:not(:disabled) {
+    background-color: #3d3d3d;
+}
+
+.vote-btn.own-track {
+    background-color: #555;
+    border-color: #666;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.vote-btn.selected {
+    background-color: #4CAF50;
+    border-color: #4CAF50;
+}
+
+.vote-btn.selected:hover {
+    background-color: #45a049;
+}
+
+/* Result Phase Styles */
+#results-container h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+#results-scoreboard,
+#results-breakdown {
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+}
+
+#results-scoreboard h3,
+#results-breakdown h3 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #4CAF50;
+}
+
+.player-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.player-result-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background-color: #1a1a1a;
+    border: 2px solid #333;
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.player-result-card.winner {
+    border-color: #FFD700;
+    background-color: rgba(255, 215, 0, 0.1);
+}
+
+.player-rank {
+    font-size: 24px;
+    font-weight: bold;
+    color: #888;
+    min-width: 50px;
+}
+
+.player-result-card.winner .player-rank {
+    color: #FFD700;
+}
+
+.player-name {
+    flex: 1;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.player-points {
+    font-size: 20px;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+.track-breakdown-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.track-breakdown-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
+
+.track-info {
+    font-size: 16px;
+}
+
+.track-votes {
+    font-size: 16px;
+    color: #2196F3;
+    font-weight: bold;
+}

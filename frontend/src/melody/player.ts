@@ -1,5 +1,6 @@
 import { MelodyData } from '../../../shared/index';
-import { playMidiNote, stopNote, stopNoteById } from '../audio/playback';
+import { playMidiNote, stopNote, stopNoteById, midiToFrequency } from '../audio/playback';
+import type { Synth } from '../audio/synth';
 
 // Configuration
 const DEFAULT_BPM = 120;
@@ -11,10 +12,12 @@ export class MelodyPlayer {
     private currentTimeouts: number[] = [];
     private bpm: number;
     private baseMidi: number;
+    private synth: Synth | null; // Optional specific synth
 
-    constructor(bpm: number = DEFAULT_BPM, baseMidi: number = DEFAULT_BASE_MIDI) {
+    constructor(bpm: number = DEFAULT_BPM, baseMidi: number = DEFAULT_BASE_MIDI, synth?: Synth) {
         this.bpm = bpm;
         this.baseMidi = baseMidi;
+        this.synth = synth || null; // Store the synth if provided
     }
 
     // Play a melody
@@ -57,12 +60,24 @@ export class MelodyPlayer {
                 // Play all notes at this step (chord support!)
                 pitches.forEach(pitch => {
                     const midiNote = this.baseMidi + pitch;
-                    const noteId = playMidiNote(midiNote);
+                    
+                    // Use specific synth if provided, otherwise use global playback
+                    let noteId: number;
+                    if (this.synth) {
+                        const frequency = midiToFrequency(midiNote);
+                        noteId = this.synth.playNote(frequency);
+                    } else {
+                        noteId = playMidiNote(midiNote);
+                    }
 
                     // Stop note before next step
                     const noteLength = stepDuration * 0.8; // 80% of step duration
                     const stopTimeoutId = window.setTimeout(() => {
-                        stopNoteById(noteId);
+                        if (this.synth) {
+                            this.synth.stopNoteById(noteId);
+                        } else {
+                            stopNoteById(noteId);
+                        }
                     }, noteLength);
                     
                     // IMPORTANT: Track this timeout so it gets cleared on stop!
@@ -98,8 +113,12 @@ export class MelodyPlayer {
         this.currentTimeouts.forEach(id => window.clearTimeout(id));
         this.currentTimeouts = [];
 
-        // Stop any playing notes
-        stopNote();
+        // Stop any playing notes (use synth if provided, otherwise global)
+        if (this.synth) {
+            this.synth.stopNote();
+        } else {
+            stopNote();
+        }
 
         console.log('⏹️ Playback stopped');
     }

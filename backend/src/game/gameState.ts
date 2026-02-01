@@ -6,12 +6,16 @@ let gameState: GameState = {
     phase: GamePhase.LOBBY,
     roundTimeRemaining: GAME_RULES.ROUND_DURATION_SECONDS,
     players: [],
-    tracks: []
+    tracks: [],
+    selections: {}
 };
 
 // Get current game state (read-only)
 export function getGameState(): GameState {
-    return { ...gameState }; // Return a copy to prevent external modifications
+    return { 
+        ...gameState,
+        selections: Object.fromEntries(selections) // Convert Map to object
+     };
 }
 
 // Reset game state to initial values
@@ -20,8 +24,10 @@ export function resetGameState(): void {
         phase: GamePhase.LOBBY,
         roundTimeRemaining: GAME_RULES.ROUND_DURATION_SECONDS,
         players: [],
-        tracks: []
+        tracks: [],
+        selections: {}
     };
+    clearSelections();
     console.log('🔄 Game state reset');
 }
 
@@ -63,6 +69,58 @@ export function addTrack(track: Track): void {
 export function clearTracks(): void {
     gameState.tracks = [];
     console.log('🗑️ All tracks cleared');
+}
+
+// Selection tracking: Map of playerId -> trackId they voted for
+const selections = new Map<string, string>();
+
+// Record a player's selection
+export function recordSelection(playerId: string, trackId: string): boolean {
+    // Validate: track exists
+    const trackExists = gameState.tracks.some(t => t.id === trackId);
+    if (!trackExists) {
+        console.log(`❌ Invalid selection: track ${trackId} not found`);
+        return false;
+    }
+
+    // Validate: player isn't voting for their own track
+    const track = gameState.tracks.find(t => t.id === trackId);
+    if (track && track.ownerPlayerId === playerId) {
+        console.log(`❌ Invalid selection: player ${playerId} tried to vote for own track`);
+        return false;
+    }
+
+    // Record the selection (overwrites if player changes vote)
+    selections.set(playerId, trackId);
+    console.log(`✅ Player ${playerId} selected track ${trackId}`);
+
+    return true;
+}
+
+// Get all selections
+export function getSelections(): Map<string, string> {
+    return new Map(selections); // Return a copy
+}
+
+// Clear selections (for new round)
+export function clearSelections(): void {
+    selections.clear();
+    console.log('🗑️ All selections cleared');
+}
+
+// Check if all players have voted
+export function haveAllPlayersVoted(): boolean {
+    // All players (excluding spectators) must have voted
+    const playerCount = gameState.players.length;
+    const voteCount = selections.size;
+
+    const allVoted = playerCount > 0 && voteCount === playerCount;
+
+    if (allVoted) {
+        console.log('✅ All players have voted');
+    }
+
+    return allVoted;
 }
 
 // Get number of players
@@ -113,4 +171,28 @@ export function stopRoundTimer(): void {
 // Reset timer to full duration
 export function resetRoundTimer(): void {
     gameState.roundTimeRemaining = GAME_RULES.ROUND_DURATION_SECONDS;
+}
+
+// Calculate and update player points from selections
+export function updatePlayerPoints(): void {
+    // Count votes for each track
+    const votesPerTrack = new Map<string, number>();
+
+    selections.forEach((trackId) => {
+        votesPerTrack.set(trackId, (votesPerTrack.get(trackId) || 0) + 1);
+    });
+
+    // Award points to track creators
+    votesPerTrack.forEach((voteCount, trackId) => {
+        const track = gameState.tracks.find(t => t.id === trackId);
+        if (track) {
+            const player = gameState.players.find(p => p.id === track.ownerPlayerId);
+            if (player) {
+                player.points += voteCount;
+                console.log(`🏆 ${player.name} earned ${voteCount} point(s)`);
+            }
+        }
+    });
+
+    console.log('✅ Player points updated');
 }

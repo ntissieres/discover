@@ -32,4 +32,5 @@ export interface GameState {
     roundTimeRemaining: number;
     players: Player[];
     tracks: Track[];
+    selections: { [playerId: string]: string };
 }

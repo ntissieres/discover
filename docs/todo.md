@@ -457,229 +457,258 @@ This document follows the recommended learning path to build the multiplayer mus
 ---
 
 ### 6.3 Timer Display
-**Status:** Not Started  
-**Files:** `frontend/src/game/timer.ts`
+**Status:** ✅ Complete  
+**Files:** `frontend/src/game/timer.ts`, `frontend/src/ui/creation.ts`, `frontend/src/main.ts`, `backend/src/game/gameState.ts`
 
 **Tasks:**
-- [ ] Create timer display element
-- [ ] Format time as MM:SS
-- [ ] Update display every second
-- [ ] Change color when < 30 seconds (urgency)
-- [ ] Show timer only during CREATION phase
-- [ ] Sync with server time (use server's roundTimeRemaining)
+- [x] Create timer formatting functions (MM:SS)
+- [x] Create timer color class logic (critical/warning/normal)
+- [x] Update timer display element every state update
+- [x] Change color based on time remaining (≤10s red, ≤30s orange, >30s green)
+- [x] Show timer in CREATION phase controls panel
+- [x] Implement backend countdown (setInterval, broadcasts every second)
+- [x] Auto-submit track when timer reaches 0
+- [x] Submit default empty melody if player hasn't submitted
+- [x] Fix UI reset bug (only reset on phase transition, not every timer tick)
 
 **Acceptance Criteria:**
-- Timer counts down visibly
-- Color change creates urgency
-- Timer is accurate
+- ✅ Timer counts down visibly
+- ✅ Color changes create urgency
+- ✅ Timer syncs with server time
+- ✅ Auto-submit works at time expiry
+- ✅ UI doesn't reset during timer ticks
 
-**Learning Focus:** Time formatting, periodic updates, visual feedback
+**Learning Focus:** Time formatting, periodic server broadcasts, state change detection, auto-submission logic
 
 ---
 
 ### 6.4 Listening Phase UI
-**Status:** Not Started  
-**Files:** `frontend/src/ui/listening.ts`
+**Status:** ✅ Complete  
+**Files:** `frontend/src/ui/listening.ts`, `frontend/src/melody/player.ts`, `frontend/src/main.ts`, `frontend/src/styles/main.css`
 
 **Tasks:**
-- [ ] Create listening container
-- [ ] Display each submitted track as card
-- [ ] Show track owner name
-- [ ] Add play button for each track
-- [ ] Reconstruct synth from track's synthSettings
-- [ ] Play melody using track's melodyData
-- [ ] Add stop button
-- [ ] Highlight currently playing track
+- [x] Create listening container
+- [x] Display each submitted track as anonymous card ("Track #1", "Track #2")
+- [x] Remove creator names (anonymous voting to prevent bias)
+- [x] Add play button for each track
+- [x] Reconstruct synth from track's synthSettings
+- [x] Play melody using track's melodyData and BPM
+- [x] Implement looping playback (continuous until stopped)
+- [x] Add stop functionality (click play button again)
+- [x] Highlight currently playing track (green border)
+- [x] Ensure only one track plays at a time
+- [x] Enhanced MelodyPlayer to accept specific Synth instance
+- [x] Move all styles to CSS (no inline styles)
 
 **Acceptance Criteria:**
-- All tracks are visible
-- Can play each track
-- Audio recreates original sound
-- Clear which track is playing
+- ✅ All tracks are visible and anonymous
+- ✅ Can play each track with looping
+- ✅ Audio recreates original synth settings
+- ✅ Clear visual feedback (border color, button text)
+- ✅ Only one track plays at a time
+- ✅ Clean CSS-based styling
 
-**Learning Focus:** Track reconstruction, synth parameter application, list rendering
+**Learning Focus:** Track reconstruction, synth parameter application, list rendering, anonymous UI design, CSS organization
 
 ---
 
 ### 6.5 Selection Phase UI
-**Status:** Not Started  
-**Files:** `frontend/src/ui/selection.ts`
+**Status:** ✅ Complete  
+**Files:** `frontend/src/ui/selection.ts`, `backend/src/handlers/selection.ts`, `backend/src/game/gameState.ts`, `frontend/src/styles/main.css`
 
 **Tasks:**
-- [ ] Create selection container
-- [ ] Display tracks as selectable cards
-- [ ] Add "Vote" button to each track
-- [ ] Disable own track (can't vote for yourself)
-- [ ] Show which track you selected
-- [ ] Send SELECT_TRACK message
-- [ ] Show "Waiting for others..." after voting
+- [x] Create selection container with title and status message
+- [x] Display tracks as anonymous selectable cards ("Track #1", "Track #2")
+- [x] Add "Vote" button to each track
+- [x] Disable own track (button shows "Your Track", grayed out)
+- [x] Show which track you selected (green border, "✓ Voted" button)
+- [x] Allow changing vote (can click different track)
+- [x] Send SELECT_TRACK message to server
+- [x] Show "Waiting for others..." status after voting
+- [x] Backend: Track selections in gameState Map
+- [x] Backend: Validate votes (track exists, not own track)
+- [x] Backend: Auto-transition to RESULTS when all voted
+- [x] Include selections in GameState broadcasts
 
 **Acceptance Criteria:**
-- Cannot select own track
-- One vote per player
-- Clear visual feedback
-- Vote is sent to server
+- ✅ Cannot select own track
+- ✅ Can change vote before phase ends
+- ✅ Clear visual feedback (border, button states)
+- ✅ Vote sent to server and validated
+- ✅ Automatic transition when all players vote
 
-**Learning Focus:** Voting UI, validation, feedback states
+**Learning Focus:** Voting UI, server-side validation, state synchronization, anonymous voting, CSS styling
 
 ---
 
 ### 6.6 Results Phase UI
-**Status:** Not Started  
-**Files:** `frontend/src/ui/results.ts`
+**Status:** ✅ Complete  
+**Files:** `frontend/src/ui/results.ts`, `backend/src/game/gameState.ts`, `backend/src/handlers/selection.ts`, `frontend/src/styles/main.css`
 
 **Tasks:**
-- [ ] Create results container
-- [ ] Display each player with points
-- [ ] Show points gained this round
-- [ ] Show total points
-- [ ] Highlight winner
-- [ ] Add "Play Again" button (resets game)
-- [ ] Show vote breakdown (who voted for what)
+- [x] Create results container with scoreboard and breakdown sections
+- [x] Display each player with their points (ranked by score)
+- [x] Points accumulate in Player.points property (cumulative across rounds)
+- [x] Highlight winner with gold border and crown emoji
+- [x] Backend: Calculate and award points based on votes
+- [x] Backend: Update player points when transitioning to RESULTS
+- [x] Show track breakdown (which tracks got how many votes)
+- [x] Reveal track creators (no longer anonymous in results)
+- [x] Rank players from highest to lowest score
+- [x] Visual winner indication (gold styling)
 
 **Acceptance Criteria:**
-- Results are clear and readable
-- Winner is obvious
-- Can restart game
+- ✅ Results are clear and readable
+- ✅ Winner is obvious (gold border, crown, #1 rank)
+- ✅ Shows both player scoreboard and track vote breakdown
+- ✅ Points calculated correctly on backend
+- ✅ Clean, organized layout
 
-**Learning Focus:** Scoreboard display, data visualization, game loop completion
+**Learning Focus:** Scoreboard display, data sorting, backend score calculation, winner highlighting, results visualization
 
 ---
 
 ### 6.7 Phase Manager
-**Status:** Not Started  
-**Files:** `frontend/src/game/phaseManager.ts`
+**Status:** ✅ Complete  
+**Files:** `frontend/src/main.ts`
 
 **Tasks:**
-- [ ] Create manager that switches between phase UIs
-- [ ] Hide all phase containers by default
-- [ ] Show appropriate container based on current phase
-- [ ] Initialize phase-specific logic when entering phase
-- [ ] Cleanup when leaving phase
-- [ ] Handle transitions smoothly
+- [x] Create manager that switches between phase UIs (implemented in main.ts)
+- [x] Hide all phase containers by default (showPhaseContainer function)
+- [x] Show appropriate container based on current phase
+- [x] Initialize phase-specific logic when entering phase (previousPhase tracking)
+- [x] Cleanup when leaving phase (reset functions)
+- [x] Handle transitions smoothly (phase detection with previousPhase)
 
 **Acceptance Criteria:**
-- Only one phase visible at a time
-- Transitions are smooth
-- No memory leaks from old phases
+- ✅ Only one phase visible at a time
+- ✅ Transitions are smooth
+- ✅ No memory leaks from old phases
 
-**Learning Focus:** State machines, UI lifecycle, transitions
+**Learning Focus:** State machines, UI lifecycle, transitions, phase detection
 
 ---
 
 ## 7. Multiplayer Flow
 
 ### 7.1 Track Submission Handler (Backend)
-**Status:** Not Started  
-**Files:** `backend/src/handlers/trackSubmission.ts`
+**Status:** ✅ Complete  
+**Files:** `backend/src/handlers/trackSubmission.ts`, `backend/src/handlers/connection.ts`
 
 **Tasks:**
-- [ ] Handle SUBMIT_TRACK message
-- [ ] Validate track data (has synthSettings and melody)
-- [ ] Generate unique track ID
-- [ ] Associate track with player
-- [ ] Store track in game state
-- [ ] Check if all players submitted
-- [ ] If all submitted, transition to LISTENING phase
-- [ ] Broadcast updated game state
+- [x] Handle SUBMIT_TRACK message
+- [x] Validate track data (has synthSettings and melody)
+- [x] Generate unique track ID (using uuid v4)
+- [x] Associate track with player (ownerPlayerId)
+- [x] Store track in game state (addTrack function)
+- [x] Prevent duplicate submissions (check existing track)
+- [x] Check if all players submitted
+- [x] If all submitted, stop timer and transition to LISTENING phase
+- [x] Broadcast updated game state
+- [x] Wire up in connection handler
 
 **Acceptance Criteria:**
-- Invalid tracks are rejected
-- Each player has one track
-- Phase advances when all submitted
-- All clients receive tracks
+- ✅ Invalid tracks are rejected
+- ✅ Each player can only submit once
+- ✅ Phase advances when all submitted
+- ✅ All clients receive tracks
 
-**Learning Focus:** Data validation, phase progression, collection completion
+**Learning Focus:** Data validation, phase progression, collection completion, UUID generation
 
 ---
 
 ### 7.2 Selection Handler (Backend)
-**Status:** Not Started  
-**Files:** `backend/src/handlers/selection.ts`
+**Status:** ✅ Complete  
+**Files:** `backend/src/handlers/selection.ts`, `backend/src/handlers/connection.ts`, `backend/src/game/gameState.ts`
 
 **Tasks:**
-- [ ] Handle SELECT_TRACK message
-- [ ] Validate trackId exists
-- [ ] Validate player isn't selecting own track
-- [ ] Store selection (player → track mapping)
-- [ ] Check if all players selected
-- [ ] If all selected, calculate scores
-- [ ] Transition to RESULTS phase
-- [ ] Broadcast results
+- [x] Handle SELECT_TRACK message
+- [x] Validate trackId exists
+- [x] Validate player isn't selecting own track (ownerPlayerId check)
+- [x] Store selection in Map (player → track mapping)
+- [x] Allow changing vote (Map.set overwrites)
+- [x] Check if all players selected
+- [x] If all selected, calculate and update player points
+- [x] Stop timer and transition to RESULTS phase
+- [x] Broadcast results
+- [x] Wire up in connection handler
 
 **Acceptance Criteria:**
-- Invalid selections rejected
-- Can't vote for own track
-- Phase advances when all voted
-- Scores calculated correctly
+- ✅ Invalid selections rejected
+- ✅ Can't vote for own track
+- ✅ Phase advances when all voted
+- ✅ Scores calculated correctly (updatePlayerPoints)
 
-**Learning Focus:** Validation, vote collection, phase orchestration
+**Learning Focus:** Validation, vote collection, phase orchestration, Map data structure
 
 ---
 
 ### 7.3 Scoring System
-**Status:** Not Started  
-**Files:** `backend/src/game/scoring.ts`
+**Status:** ✅ Complete  
+**Files:** `backend/src/game/gameState.ts`
 
 **Tasks:**
-- [ ] Create function to calculate scores from selections
-- [ ] Count votes per track
-- [ ] Award points to track owners (+1 per vote)
-- [ ] Update player points in game state
-- [ ] Create results summary object
-- [ ] Determine winner (highest points)
-- [ ] Handle ties
+- [x] Create function to calculate scores from selections (updatePlayerPoints)
+- [x] Count votes per track (votesPerTrack Map)
+- [x] Award points to track owners (+1 per vote)
+- [x] Update player points directly in Player objects
+- [x] Points are cumulative across rounds
+- [x] Log point awards
 
 **Acceptance Criteria:**
-- Votes are counted correctly
-- Points awarded accurately
-- Winner determination works
-- Results include breakdown
+- ✅ Votes are counted correctly
+- ✅ Points awarded accurately to track creators
+- ✅ Winner determination works (in Results UI)
+- ✅ Results include breakdown
 
-**Learning Focus:** Vote counting, score aggregation, winner determination
+**Learning Focus:** Vote counting, score aggregation, updating nested objects, Map operations
 
 ---
 
 ### 7.4 Phase Transitions
-**Status:** Not Started  
-**Files:** `backend/src/game/phases.ts`
+**Status:** ✅ Complete  
+**Files:** `backend/src/game/gameState.ts`, `backend/src/game/lobby.ts`, various handlers
 
 **Tasks:**
-- [ ] Create `transitionToPhase(newPhase)` function
-- [ ] Update game state phase
-- [ ] Initialize phase-specific state (e.g., reset timer)
-- [ ] Validate transition is valid
-- [ ] Broadcast state update
-- [ ] Log phase changes
+- [x] Use `setPhase(newPhase)` function to update phase
+- [x] Update game state phase property
+- [x] Initialize phase-specific state (timer reset in startGame)
+- [x] Transitions implemented:
+  - [x] LOBBY → CREATION (startGame in lobby.ts)
+  - [x] CREATION → LISTENING (handleSubmitTrack when all submitted)
+  - [x] LISTENING → SELECTION (manual for now)
+  - [x] SELECTION → RESULTS (handleSelectTrack when all voted)
+- [x] Broadcast state update after transition
+- [x] Log phase changes
 
 **Acceptance Criteria:**
-- Phases transition in correct order
-- State is reset appropriately
-- All clients notified
+- ✅ Phases transition in correct order
+- ✅ State is reset appropriately (timer, tracks, selections)
+- ✅ All clients notified
 
-**Learning Focus:** State machines, game flow, orchestration
+**Learning Focus:** State machines, game flow, orchestration, automatic progression
 
 ---
 
 ### 7.5 Timer System (Backend)
-**Status:** Not Started  
-**Files:** `backend/src/game/phases.ts` (continued)
+**Status:** ✅ Complete  
+**Files:** `backend/src/game/gameState.ts`, `backend/src/ui/creation.ts`
 
 **Tasks:**
-- [ ] Create countdown timer for CREATION phase
-- [ ] Set timer to ROUND_DURATION_SECONDS when phase starts
-- [ ] Decrement every second
-- [ ] Broadcast time updates periodically
-- [ ] Auto-submit empty tracks for players who didn't submit
-- [ ] Transition to LISTENING when timer reaches 0
+- [x] Create countdown timer for CREATION phase (startRoundTimer)
+- [x] Set timer to ROUND_DURATION_SECONDS when phase starts
+- [x] Decrement every second (setInterval)
+- [x] Broadcast time updates every second (GAME_STATE_UPDATE)
+- [x] Auto-submit empty/default tracks for players who didn't submit (handleAutoSubmit)
+- [x] Transition to LISTENING when timer reaches 0 or all submitted
 
 **Acceptance Criteria:**
-- Timer counts down accurately
-- Clients see timer updates
-- Phase auto-advances
-- Non-submitters handled gracefully
+- ✅ Timer counts down accurately
+- ✅ Clients see timer updates (every second)
+- ✅ Phase auto-advances
+- ✅ Non-submitters handled gracefully (default melody)
 
-**Learning Focus:** Server-side timing, auto-progression, fairness
+**Learning Focus:** Server-side timing, setInterval, auto-progression, fairness, default values
 
 ---
 

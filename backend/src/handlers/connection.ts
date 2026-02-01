@@ -2,6 +2,8 @@ import { WebSocket } from 'ws';
 import { ClientToServerMessage } from '../../../shared/index';
 import { joinGame, leaveGame, startGame } from '../game/lobby';
 import { sendToClient } from '../socketServer';
+import { handleSelectTrack } from './selection';
+import { handleSubmitTrack } from './trackSubmission';
 
 // Map WebSocket connections to player IDs
 const socketToPlayerId = new Map<WebSocket, string>();
@@ -20,13 +22,27 @@ export function handleClientMessage(ws: WebSocket, message: ClientToServerMessag
                 break;
 
             case 'SUBMIT_TRACK':
-                // TODO: Implement in next section
-                console.log('⚠️  SUBMIT_TRACK not yet implemented');
+                const submitPlayerId = socketToPlayerId.get(ws);
+                if (!submitPlayerId) {
+                    sendToClient(ws, {
+                        type: 'ERROR',
+                        message: 'You must join the game first'
+                    });
+                    return;
+                }
+                handleSubmitTrack(ws, message.track, submitPlayerId);
                 break;
             
             case 'SELECT_TRACK':
-                // TODO: Implement in next section
-                console.log('⚠️  SELECT_TRACK not yet implemented');
+                const playerId = socketToPlayerId.get(ws);
+                if (!playerId) {
+                    sendToClient(ws, {
+                        type: 'ERROR',
+                        message: 'You must join the game first'
+                    });
+                    return;
+                }
+                handleSelectTrack(ws, message.trackId, playerId);
                 break;
 
             default:
