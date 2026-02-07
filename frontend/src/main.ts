@@ -5,9 +5,9 @@ import { initAudioContext } from './audio/audioContext';
 import { initPlayback, playNoteName, stopNote, midiToFrequency, noteNameToMidi } from './audio/playback';
 import { initCreation, resetCreationUI, updateCreationTimer } from './ui/creation';
 import { updateLobbyUI, initLobby } from './ui/lobby';
-import { initListening, updateListeningUI } from './ui/listening';
-import { initSelection, updateSelectionUI } from './ui/selection';
-import { initResults, updateResultsUI } from './ui/results';
+import { initListening, updateListeningUI, resetListeningUI } from './ui/listening';
+import { initSelection, updateSelectionUI, resetSelectionUI } from './ui/selection';
+import { initResults, updateResultsUI, resetResultsUI } from './ui/results';
 
 console.log('🎮 Discover - Starting...');
 
@@ -105,6 +105,11 @@ onStateChange((state) => {
     // We're a player - show appropriate phase UI
     if (state.phase === 'LOBBY') {
         updateLobbyUI();
+        // Reset all phase UIs when going back to lobby
+        resetCreationUI();
+        resetListeningUI();
+        resetSelectionUI();
+        resetResultsUI();
     }
 
     // Handle CREATION phase
@@ -128,8 +133,11 @@ onStateChange((state) => {
             initListening();
         }
 
-        // Update with current tracks
-        updateListeningUI(state.tracks);
+        // Update with current tracks and ready status
+        const localPlayerId = getLocalPlayerId();
+        if (localPlayerId) {
+            updateListeningUI(state.tracks, localPlayerId, state.readyToSelectPlayers);
+        }
     }
 
     // Handle SELECTION phase
@@ -153,7 +161,10 @@ onStateChange((state) => {
         }
 
         // Update with current data
-        updateResultsUI(state.players, state.tracks, state.selections);
+        const localPlayerId = getLocalPlayerId();
+        if (localPlayerId) {
+            updateResultsUI(state.players, state.tracks, state.selections, localPlayerId);
+        }
     }
 
     // Show/hide phase containers based on current phase

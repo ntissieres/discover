@@ -1,6 +1,7 @@
 import type { Player } from '../../../shared/types/player';
 import type { Track } from '../../../shared/types/track';
 import { getLocalPlayerId } from '../game/gameState';
+import { sendMessage } from '../network/socket';
 
 // Initialize the results phase UI
 export function initResults(): void {
@@ -26,6 +27,22 @@ export function initResults(): void {
     breackdown.innerHTML = '<h3>Track Breakdown</h3>';
     container.appendChild(breackdown);
 
+    // Add restart button section (only visible to host)
+    const restartSection = document.createElement('div');
+    restartSection.id = 'restart-section';
+    restartSection.style.textAlign = 'center';
+    restartSection.style.marginTop = '30px';
+    
+    const restartBtn = document.createElement('button');
+    restartBtn.id = 'restart-btn';
+    restartBtn.className = 'restart-btn';
+    restartBtn.textContent = '🔄 Play Again';
+    restartBtn.style.display = 'none'; // Hidden by default
+    restartBtn.onclick = handleRestartGame;
+    
+    restartSection.appendChild(restartBtn);
+    container.appendChild(restartSection);
+
     console.log('✅ Results UI initialized');
 }
 
@@ -33,10 +50,19 @@ export function initResults(): void {
 export function updateResultsUI(
     players: Player[],
     tracks: Track[],
-    selections: { [playerId: string]: string }
+    selections: { [playerId: string]: string },
+    localPlayerId: string
 ): void {
     updateScoreboard(players);
     updateTrackBreakdown(tracks, players, selections);
+
+    // Show restart button only for host (first player)
+    const restartBtn = document.getElementById('restart-btn');
+    if (restartBtn && players.length > 0) {
+        const isHost = players[0].id === localPlayerId;
+        restartBtn.style.display = isHost ? 'block' : 'none';
+    }
+    
     console.log('🏆 Results displayed');
 }
 
@@ -168,4 +194,14 @@ export function resetResultsUI(): void {
         breakdown.innerHTML = '';
     }
     console.log('🔄 Results UI reset');
+}
+
+// Handle restart game button click
+function handleRestartGame(): void {
+    console.log('🔄 Restarting game...');
+
+    // Send START_GAME message (same as starting from lobby)
+    sendMessage({
+        type: 'START_GAME'
+    });
 }

@@ -7,14 +7,16 @@ let gameState: GameState = {
     roundTimeRemaining: GAME_RULES.ROUND_DURATION_SECONDS,
     players: [],
     tracks: [],
-    selections: {}
+    selections: {},
+    readyToSelectPlayers: []
 };
 
 // Get current game state (read-only)
 export function getGameState(): GameState {
     return { 
         ...gameState,
-        selections: Object.fromEntries(selections) // Convert Map to object
+        selections: Object.fromEntries(selections), // Convert Map to object
+        readyToSelectPlayers: Array.from(readyToSelectPlayers) // Convert Set to array
      };
 }
 
@@ -25,9 +27,11 @@ export function resetGameState(): void {
         roundTimeRemaining: GAME_RULES.ROUND_DURATION_SECONDS,
         players: [],
         tracks: [],
-        selections: {}
+        selections: {},
+        readyToSelectPlayers: []
     };
     clearSelections();
+    clearReadyToSelectPlayers();
     console.log('🔄 Game state reset');
 }
 
@@ -110,17 +114,58 @@ export function clearSelections(): void {
 
 // Check if all players have voted
 export function haveAllPlayersVoted(): boolean {
-    // All players (excluding spectators) must have voted
-    const playerCount = gameState.players.length;
-    const voteCount = selections.size;
+    // Only count connected players
+    const connectedPlayers = gameState.players.filter(p => p.connected);
+    const connectedPlayerCount = connectedPlayers.length;
+    
+    // Count votes from connected players only
+    const votesFromConnectedPlayers = connectedPlayers.filter(p => selections.has(p.id)).length;
 
-    const allVoted = playerCount > 0 && voteCount === playerCount;
+    const allVoted = connectedPlayerCount > 0 && votesFromConnectedPlayers === connectedPlayerCount;
 
     if (allVoted) {
-        console.log('✅ All players have voted');
+        console.log(`✅ All ${connectedPlayerCount} connected players have voted`);
     }
 
     return allVoted;
+}
+
+// Ready tracking: set of player IDs who are ready to select
+const readyToSelectPlayers = new Set<string>();
+
+// Mark a player as ready
+export function markPlayerReadyToSelect(playerId: string): void {
+    readyToSelectPlayers.add(playerId);
+    console.log(`✅ Player ${playerId} is ready to select`);
+}
+
+// Get ready players
+export function getReadyToSelectPlayers(): Set<string> {
+    return new Set(readyToSelectPlayers); // Return a copy
+}
+
+// Clear ready to select players (for new round)
+export function clearReadyToSelectPlayers(): void {
+    readyToSelectPlayers.clear();
+    console.log('🗑️ All ready to select players cleared');
+}
+
+// Check if all players are ready
+export function areAllPlayersReadyToSelect(): boolean {
+    // Only count connected players
+    const connectedPlayers = gameState.players.filter(p => p.connected);
+    const connectedPlayerCount = connectedPlayers.length;
+    
+    // Count ready status from connected players only
+    const readyConnectedPlayers = connectedPlayers.filter(p => readyToSelectPlayers.has(p.id)).length;
+
+    const allReady = connectedPlayerCount > 0 && readyConnectedPlayers === connectedPlayerCount;
+
+    if (allReady) {
+        console.log(`✅ All ${connectedPlayerCount} connected players are ready to select`);
+    }
+
+    return allReady;
 }
 
 // Get number of players

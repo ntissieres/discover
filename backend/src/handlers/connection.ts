@@ -4,6 +4,7 @@ import { joinGame, leaveGame, startGame } from '../game/lobby';
 import { sendToClient } from '../socketServer';
 import { handleSelectTrack } from './selection';
 import { handleSubmitTrack } from './trackSubmission';
+import { handleReadyToSelect } from './readyToSelect';
 
 // Map WebSocket connections to player IDs
 const socketToPlayerId = new Map<WebSocket, string>();
@@ -31,6 +32,18 @@ export function handleClientMessage(ws: WebSocket, message: ClientToServerMessag
                     return;
                 }
                 handleSubmitTrack(ws, message.track, submitPlayerId);
+                break;
+
+            case 'READY_TO_SELECT':
+                const readyPlayerId = socketToPlayerId.get(ws);
+                if (!readyPlayerId) {
+                    sendToClient(ws, {
+                        type: 'ERROR',
+                        message: 'You must join the game first'
+                    });
+                    return;
+                }
+                handleReadyToSelect(ws, readyPlayerId);
                 break;
             
             case 'SELECT_TRACK':

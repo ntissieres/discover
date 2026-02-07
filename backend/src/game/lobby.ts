@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Player } from '../../../shared/index';
-import { GAME_RULES, GamePhase } from '../../../shared/index';
+import { Player, GAME_RULES, GamePhase } from '../../../shared/index';
 import {
     addPlayer as addPlayerToState, 
     removePlayer as removePlayerFromState,
@@ -8,10 +7,17 @@ import {
     setPhase,
     getGameState,
     resetGameState,
-    clearTracks
+    clearTracks,
+    startRoundTimer,
+    resetRoundTimer,
+    stopRoundTimer,
+    areAllPlayersReadyToSelect,
+    clearReadyToSelectPlayers,
+    haveAllPlayersVoted,
+    updatePlayerPoints,
+    clearSelections
 } from './gameState';
 import { broadcast } from '../socketServer';
-import { startRoundTimer, resetRoundTimer } from './gameState';
 
 // Join the game lobby
 export function joinGame(playerName: string): Player {
@@ -73,7 +79,29 @@ export function leaveGame(playerId: string): void {
         setPhase(GamePhase.LOBBY);
         clearTracks();
     }
-    // Otherwise just stay in current state with remaining players
+    // If in CREATION phase and all remaining players submitted
+    else if (currentState.phase === GamePhase.CREATION) {
+        const trackCount = currentState.tracks.length;
+        if (trackCount === playerCount && playerCount > 0) {
+            console.log('✅ All remaining players submitted, transitioning to LISTENING');
+            stopRoundTimer();
+            setPhase(GamePhase.LISTENING);
+        }
+    }
+    // If in LISTENING phase and all remaining players are ready
+    else if (currentState.phase === GamePhase.LISTENING && areAllPlayersReadyToSelect()) {
+        console.log('✅ All remaining players ready, transitioning to SELECTION');
+        clearReadyToSelectPlayers();
+        stopRoundTimer();
+        setPhase(GamePhase.SELECTION);
+    }
+    // If in SELECTION phase and all remaining players voted
+    else if (currentState.phase === GamePhase.SELECTION && haveAllPlayersVoted()) {
+        console.log('✅ All remaining players voted, transitioning to RESULTS');
+        updatePlayerPoints();
+        setPhase(GamePhase.RESULTS);
+    }
+
 
     // Broadcast updated state
     broadcastGameState();
@@ -92,16 +120,24 @@ export function startGame(): void {
         throw new Error(`Cannot start game. Need ${GAME_RULES.MIN_PLAYERS}-${GAME_RULES.MAX_PLAYERS} players.`);
     }
 
-    // Check current phase
+    // Check current phase - allow starting from LOBBY or restarting from RESULTS
     const currentState = getGameState();
-    if (currentState.phase !== GamePhase.LOBBY) {
-        throw new Error('Game already started');
+    if (currentState.phase !== GamePhase.LOBBY && currentState.phase !== GamePhase.RESULTS) {
+        throw new Error('Cannot start - game in progress');
     }
 
     console.log('🎮 Starting game!');
 
+    // Reset player points for new game
+    const state = getGameState();
+    state.players.forEach(player => {
+        player.points = 0;
+    });
+
     // Clear any old tracks from previous games
     clearTracks();
+    clearSelections();
+    clearReadyToSelectPlayers();
 
     // Reset timer to full duration
     resetRoundTimer();

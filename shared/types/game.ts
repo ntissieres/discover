@@ -33,4 +33,5 @@ export interface GameState {
     players: Player[];
     tracks: Track[];
     selections: { [playerId: string]: string };
+    readyToSelectPlayers: string[];
 }
